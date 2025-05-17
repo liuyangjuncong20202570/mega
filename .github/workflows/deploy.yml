@@ -1,0 +1,46 @@
+name: Deploy Next.js Frontend (pnpm + TipTap)
+
+on:
+  push:
+    branches:
+      - main # 或你实际使用的分支
+
+jobs:
+  build:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    env:
+      TIPTAP_API_KEY: ${{ secrets.TIPTAP_API_KEY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20 # 根据你的项目选择正确版本
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        working-directory: moon
+        run: pnpm install
+
+      - name: Build project
+        working-directory: moon
+        run: pnpm build
+
+      # 可选：上传构建结果为 artifact（如果不部署，仅供查看）
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nextjs-build
+          path: moon/.next
+
+      # 示例部署：你可以在这里添加 Docker 构建推送或 SSH 远程部署步骤
+      # - name: Deploy to ECS / S3 / Vercel / etc...
+      #   run: echo "Add your deployment logic here"
