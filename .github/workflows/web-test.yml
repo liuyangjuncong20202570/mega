@@ -1,5 +1,6 @@
 name: Test Web UI
 on:
+  workflow_dispatch:
   pull_request_target:
   push:
     branches:
@@ -16,7 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
