@@ -58,3 +58,36 @@ jobs:
       - name: Build Next.js application
         working-directory: ./moon
         run: pnpm run build
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+          # role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          # role-external-id: ${{ secrets.AWS_ROLE_EXTERNAL_ID }}
+          # role-duration-seconds: 1200
+          # role-session-name: MySessionName
+
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+
+      - name: Build, tag, and push docker image to Amazon ECR Public
+        working-directory: moon
+        env:
+          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+          REGISTRY_ALIAS: m8q5m4u3
+          REPOSITORY: mega-frontend
+          IMAGE_TAG: mega-ui-0.1.0-pre-release
+          run: |
+            docker build \
+              --build-arg TIPTAP_TOKEN=${{ secrets.TIPTAP_PRIVATE_REGISTRY_KEY }} \
+              -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG .
+            docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
+        # run: |
+        #   docker build -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG . --build-arg RUBY_VERSION=${{env.RUBY_VERSION}} --build-arg NODE_VERSION=${{env.NODE_VERSION}} --build-arg BUNDLER_VERSION=${{env.BUNDLER_VERSION}}
+        #   docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
