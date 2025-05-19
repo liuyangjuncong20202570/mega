@@ -49,5 +49,6 @@
   # COPY --from=builder /app/apps/web/next.config.js ./next.config.js
   
   # 启动 SSR 服务
+  WORKDIR /app/apps/web
   CMD ["pnpm", "start"]
   
