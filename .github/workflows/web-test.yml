@@ -81,7 +81,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
           REGISTRY_ALIAS: m8q5m4u3
-          REPOSITORY: mega-frontend
+          REPOSITORY: mega-ui
           IMAGE_TAG: mega-ui-0.1.0-pre-release
           run: |
             docker build \
