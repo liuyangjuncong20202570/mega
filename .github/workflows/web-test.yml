@@ -83,11 +83,11 @@ jobs:
           REGISTRY_ALIAS: m8q5m4u3
           REPOSITORY: mega-ui
           IMAGE_TAG: mega-ui-0.1.0-pre-release
-          run: |
-            docker build \
-              --build-arg TIPTAP_TOKEN=${{ secrets.TIPTAP_PRIVATE_REGISTRY_KEY }} \
-              -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG .
-            docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
+        run: |
+          docker build \
+            --build-arg TIPTAP_TOKEN=${{ secrets.TIPTAP_PRIVATE_REGISTRY_KEY }} \
+            -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
         # run: |
         #   docker build -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG . --build-arg RUBY_VERSION=${{env.RUBY_VERSION}} --build-arg NODE_VERSION=${{env.NODE_VERSION}} --build-arg BUNDLER_VERSION=${{env.BUNDLER_VERSION}}
         #   docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
