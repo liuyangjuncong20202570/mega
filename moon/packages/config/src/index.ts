@@ -21,14 +21,18 @@ export const DESKTOP_APP_PROTOCOL = IS_PRODUCTION ? 'campsite://' : 'campsite-de
 export const LAST_CLIENT_JS_BUILD_ID_LS_KEY = 'latest-js-time'
 
 export const RAILS_API_URL = IS_PRODUCTION
-  ? 'https://api.gitmono.com'
+  ? // 'https://api.gitmono.com'
+    'http://api.gitmega.com'
   : process.env.NEXT_PUBLIC_API_URL || 'http://api.gitmega.com'
 
 export const LEGACY_API_URL = IS_PRODUCTION
-  ? 'https://api.gitmono.com'
+  ? // 'https://api.gitmono.com'
+    'http://api.gitmega.com'
   : process.env.NEXT_PUBLIC_LEGACY_API_URL || 'http://git.gitmega.com'
 
-const RAILS_AUTH_URL_PROD_COM = 'https://auth.gitmono.com'
+const RAILS_AUTH_URL_PROD_COM =
+  // 'https://auth.gitmono.com'
+  'http://auth.gitmega.com'
 
 export const RAILS_AUTH_URL = IS_PRODUCTION
   ? RAILS_AUTH_URL_PROD_COM
