@@ -34,7 +34,6 @@
   
   WORKDIR /app
   
-  ENV NODE_ENV=production
   ENV PORT=3000
   
   # 安装 pnpm（保持一致版本）
