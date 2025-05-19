@@ -139,7 +139,7 @@ export const queryClient = () =>
 export const apiClient = new Api({
   baseUrl: RAILS_API_URL,
   baseApiParams: {
-    // credentials: 'include',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     format: 'json'
   }
@@ -148,7 +148,7 @@ export const apiClient = new Api({
 export const legacyApiClient = new Api({
   baseUrl: LEGACY_API_URL,
   baseApiParams: {
-    // credentials: 'include',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     format: 'json'
   }
