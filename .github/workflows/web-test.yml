@@ -58,7 +58,7 @@ jobs:
       #   working-directory: ./moon
       #   run: pnpm run build
 
-      - name: Configure AWS Credentials
+      - name: Configure AWS Credential
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
