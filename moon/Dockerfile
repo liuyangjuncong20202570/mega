@@ -1,32 +1,32 @@
 # ----------- Stage 1: Build the app -----------
-  FROM node:20-alpine AS builder
+  # FROM node:20-alpine AS builder
 
-  WORKDIR /app
+  # WORKDIR /app
   
-  # 安装指定版本的 pnpm（9.7.1）
-  RUN corepack enable && corepack prepare pnpm@9.7.1 --activate
+  # # 安装指定版本的 pnpm（9.7.1）
+  # RUN corepack enable && corepack prepare pnpm@9.7.1 --activate
   
-  # 构建阶段需要传入 TIPTAP_TOKEN
-  ARG TIPTAP_TOKEN
+  # # 构建阶段需要传入 TIPTAP_TOKEN
+  # ARG TIPTAP_TOKEN
   
-  # 拷贝源码
-  COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+  # # 拷贝源码
+  # COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 
-  COPY . .
+  # COPY . .
   
-  # 设置TipTap环境
-  RUN pnpm config set "@tiptap-pro:registry" https://registry.tiptap.dev/
-  RUN pnpm config set "//registry.tiptap.dev/:_authToken" "$TIPTAP_TOKEN"
+  # # 设置TipTap环境
+  # RUN pnpm config set "@tiptap-pro:registry" https://registry.tiptap.dev/
+  # RUN pnpm config set "//registry.tiptap.dev/:_authToken" "$TIPTAP_TOKEN"
 
-  # 安装依赖
-  RUN pnpm install --frozen-lockfile
+  # # 安装依赖
+  # RUN pnpm install --frozen-lockfile
 
-  RUN pnpm run lint
+  # RUN pnpm run lint
   
-  # 构建 Next.js 应用（SSR 模式）
-  # 进入 apps/web 构建 Next.js
-  WORKDIR /app
-  RUN pnpm run build
+  # # 构建 Next.js 应用（SSR 模式）
+  # # 进入 apps/web 构建 Next.js
+  # WORKDIR /app
+  # RUN pnpm run build
 
   
   # ----------- Stage 2: Run the app with only needed files -----------
@@ -40,7 +40,8 @@
   RUN corepack enable && corepack prepare pnpm@9.7.1 --activate
   
   # 拷贝构建产物和依赖
-  COPY --from=builder /app /app
+  # COPY --from=builder /app /app
+  COPY . .
   # COPY --from=builder /app/apps/web/public ./public
   # COPY --from=builder /app/apps/web/.next ./.next
   # COPY --from=builder /app/apps/web/node_modules ./node_modules
