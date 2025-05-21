@@ -11,7 +11,7 @@ env:
   TIPTAP_PRIVATE_REGISTRY_KEY: ${{ secrets.TIPTAP_PRIVATE_REGISTRY_KEY }}
 
 jobs:
-  test-web-ui:
+  web-ui-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
