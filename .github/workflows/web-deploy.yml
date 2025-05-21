@@ -79,6 +79,5 @@ jobs:
           IMAGE_TAG: mega-ui-0.1.0-pre-release
         run: |
           docker build \
-            --build-arg TIPTAP_TOKEN=${{ secrets.TIPTAP_PRIVATE_REGISTRY_KEY }} \
             -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
