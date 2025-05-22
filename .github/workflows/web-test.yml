@@ -1,6 +1,6 @@
 name: Test Web UI
 on:
-  push:
+  pull_request:
     branches:
       - main
     paths:
@@ -19,6 +19,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           ref: ${{ github.event.pull_request.base.ref }}
 
       - uses: actions/setup-node@v4
