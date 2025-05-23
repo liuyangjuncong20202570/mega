@@ -4,11 +4,12 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/web-*.yml'
+      - '.github/workflows/web-test.yml'
+      - '.github/workflows/web-deploy.yml'
       - 'moon/**'
 
 env:
-  TIPTAP_PRIVATE_REGISTRY_KEY: ${{ secrets.TIPTAP_PRIVATE_REGISTRY_KEY }}
+  TIPTAP_PRIVATE_REGISTRY_KEY: CjqFil0n7z4GGur+RPric21fBBeSB4R4FoNdRYOE1bQEz6AXLCoANCc+o9rLIg6Q
 
 jobs:
   test-web-ui:
@@ -70,17 +71,22 @@ jobs:
         id: login-ecr-public
         uses: aws-actions/amazon-ecr-login@v2
         with:
-          registry-type: public
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
-      - name: Build, tag, and push docker image to Amazon ECR Public
-        working-directory: moon
-        env:
-          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-          REGISTRY_ALIAS: m8q5m4u3
-          REPOSITORY: mega-ui
-          IMAGE_TAG: mega-ui-0.1.0-pre-release
-        run: |
-          docker build \
-            --build-arg TIPTAP_TOKEN=${{ secrets.TIPTAP_PRIVATE_REGISTRY_KEY }} \
-            -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG .
-          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
+      - run: pnpm config set "@tiptap-pro:registry" https://registry.tiptap.dev/
+      - run: pnpm config set "//registry.tiptap.dev/:_authToken" ${{ env.TIPTAP_PRIVATE_REGISTRY_KEY }}
+
+      - name: Install dependencies
+        working-directory: ./moon
+        run: pnpm i --frozen-lockfile
+
+      - name: Run ESLint
+        working-directory: ./moon
+        run: pnpm run lint
+
+      - name: Build Next.js application
+        working-directory: ./moon
+        run: pnpm run build
