@@ -1,20 +1,19 @@
-import Head from 'next/head'
 
 import { AppLayout } from '@/components/Layout/AppLayout'
 import { AuthAppProviders } from '@/components/Providers/AuthAppProviders'
 import { PageWithLayout } from '@/utils/types'
+import MRDetailPage from './page.tsx'
 
-import IssuePage from './page.tsx'
+const OrganizationIssueNewPage: PageWithLayout<any> = () => {
 
-const OrganizationIssuePage: PageWithLayout<any> = () => {
   return (
     <>
-      <IssuePage />
+      <MRDetailPage />
     </>
   )
 }
 
-OrganizationIssuePage.getProviders = (page, pageProps) => {
+OrganizationIssueNewPage.getProviders = (page, pageProps) => {
   return (
     <AuthAppProviders {...pageProps}>
       <AppLayout {...pageProps}>{page}</AppLayout>
@@ -22,4 +21,4 @@ OrganizationIssuePage.getProviders = (page, pageProps) => {
   )
 }
 
-export default OrganizationIssuePage
+export default OrganizationIssueNewPage

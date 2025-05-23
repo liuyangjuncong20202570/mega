@@ -1,142 +1,146 @@
 'use client'
 
+import React, { useCallback, useEffect, useState } from 'react'
+import { CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
+import { Button, Flex, List, PaginationProps, Tabs, TabsProps, Tag } from 'antd'
+import { formatDistance, fromUnixTime } from 'date-fns'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+
 import { Heading } from '@/components/Catalyst/Heading'
-import React, { useEffect, useState,useCallback } from 'react';
-import { Flex, List, PaginationProps, Tag, Button, Tabs, TabsProps } from 'antd';
-import { formatDistance, fromUnixTime } from 'date-fns';
-import { CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import Link from 'next/link';
-import { useGetIssueLists } from '@/hooks/issues/useGetIssueLists';
+import { useGetIssueLists } from '@/hooks/issues/useGetIssueLists'
 
 interface Item {
-    link: string,
-    title: string,
-    status: string,
-    open_timestamp: number,
-    merge_timestamp: number | null,
-    updated_at: number,
+  closed_at?: number | null
+  link: string
+  owner: number
+  title: string
+  status: string
+  open_timestamp: number
+  updated_at: number
 }
+// interface Item {
+//     link: string,
+//     title: string,
+//     status: string,
+//     open_timestamp: number,
+//     merge_timestamp: number | null,
+//     updated_at: number,
+// }
 
 export default function IssuePage() {
-    const [itemList, setItemList] = useState<Item[]>([]);
-    const [numTotal, setNumTotal] = useState(0);
-    const [pageSize, setPageSize] = useState(10);
-    const [status, setStatus] = useState("open")
-    const {mutateAsync:getIssueLists} = useGetIssueLists()
+  const router = useRouter()
+  const [itemList, setItemList] = useState<Item[]>([])
+  const [numTotal, setNumTotal] = useState(0)
+  const [pageSize, setPageSize] = useState(10)
+  const [status, setStatus] = useState('open')
+  const { mutateAsync: issueListsAsync } = useGetIssueLists()
 
-    const fetchData = useCallback((page:number,per_page:number)=>{
-        getIssueLists({ pagination: { page, per_page }, additional: { status } })
-    },[status,getIssueLists])
+  const fetchData = useCallback(
+    async (page: number, per_page: number) => {
+      const { req_result, data, err_message } = await issueListsAsync({
+        pagination: { page, per_page },
+        additional: { status }
+      })
+      if (req_result && data) {
+        setItemList(data.items ?? [])
+        setNumTotal(data.total ?? 0)
+      }
+    },
+    [status, issueListsAsync]
+  )
 
-    // const fetchData = useCallback(async (page: number, per_page: number) => {
-    //     try {
-    //         const res = await fetch(`/api/issue/list`, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify({
-    //                 pagination: {
-    //                     page: page,
-    //                     per_page: per_page
-    //                 },
-    //                 additional: {
-    //                     status: status
-    //                 }
-    //             }),
-    //         });
-    //         const response = await res.json();
-    //         const data = response.data.data;
+  useEffect(() => {
+    fetchData(1, pageSize)
+  }, [pageSize, status, fetchData])
 
-    //         setItemList(data.items);
-    //         setNumTotal(data.total)
-    //     } catch (error) {
-    //         console.error('Error fetching data:', error);
-    //     }
-    // }, [status]);
-
-    useEffect(() => {
-        fetchData(1, pageSize);
-    }, [pageSize, status, fetchData]);
-
-    const getStatusTag = (status: string) => {
-        switch (status) {
-            case 'open':
-                return <Tag color="error">open</Tag>;
-            case 'closed':
-                return <Tag color="success">closed</Tag>;
-        }
-    };
-
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case 'open':
-                return <ExclamationCircleOutlined />;
-            case 'closed':
-                return <CheckCircleOutlined />;
-        }
-    };
-
-    const getDescription = (item: Item) => {
-        switch (item.status) {
-            case 'open':
-                return `Issue opened by Admin ${formatDistance(fromUnixTime(item.open_timestamp), new Date(), { addSuffix: true })} `;
-            case 'closed':
-                return (`Issue ${item.link} closed by Admin ${formatDistance(fromUnixTime(item.updated_at), new Date(), { addSuffix: true })}`)
-        }
+  const getStatusTag = (status: string) => {
+    switch (status) {
+      case 'open':
+        return <Tag color='error'>open</Tag>
+      case 'closed':
+        return <Tag color='success'>closed</Tag>
     }
+  }
 
-    const onChange: PaginationProps['onChange'] = (current, pageSize) => {
-        fetchData(current, pageSize);
-    };
-
-    const tabsChange = (activeKey: string) => {
-        if (activeKey === '1') {
-            setStatus("open");
-        } else {
-            setStatus("closed");
-        }
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'open':
+        return <ExclamationCircleOutlined />
+      case 'closed':
+        return <CheckCircleOutlined />
     }
+  }
 
-    const tab_items: TabsProps['items'] = [
-        {
-            key: '1',
-            label: 'Open',
-        },
-        {
-            key: '2',
-            label: 'Closed',
-        }
-    ];
+  const getDescription = (item: Item) => {
+    switch (item.status) {
+      case 'open':
+        return `Issue opened by Admin ${formatDistance(fromUnixTime(item.open_timestamp), new Date(), { addSuffix: true })} `
+      case 'closed':
+        return `Issue ${item.link} closed by Admin ${formatDistance(fromUnixTime(item.updated_at), new Date(), { addSuffix: true })}`
+    }
+  }
 
-    return (
-        <>
-           <div className="container p-10">
-           <Heading>Issues</Heading>
-            <Flex justify={'flex-end'} >
-                <Button style={{ backgroundColor: '#428646',color:'#fff' }} href='/issue/new'>New Issue</Button>
-            </Flex>
+  const onChange: PaginationProps['onChange'] = (current, pageSize) => {
+    fetchData(current, pageSize)
+  }
 
-            <Tabs defaultActiveKey="1" items={tab_items} onChange={tabsChange} />
+  const tabsChange = (activeKey: string) => {
+    if (activeKey === '1') {
+      setStatus('open')
+    } else {
+      setStatus('closed')
+    }
+  }
 
-            <List
-                style={{ width: '80%', marginLeft: '10%', marginTop: '10px' }}
-                pagination={{ align: "center", pageSize: pageSize, total: numTotal, onChange: onChange }}
-                dataSource={itemList}
-                renderItem={(item, index) => (
-                    <List.Item>
-                        <List.Item.Meta
-                            avatar={
-                                // <ExclamationCircleOutlined />
-                                getStatusIcon(item.status)
-                            }
-                            title={<Link href={`/issue/${item.link}`}>{item.title} {getStatusTag(item.status)}</Link>}
-                            description={getDescription(item)}
-                        />
-                    </List.Item>
-                )}
-            />
-           </div>
-        </>
-    )
+  const tab_items: TabsProps['items'] = [
+    {
+      key: '1',
+      label: 'Open'
+    },
+    {
+      key: '2',
+      label: 'Closed'
+    }
+  ]
+
+  return (
+    <>
+      <div className='container p-10'>
+        <Heading>Issues</Heading>
+        <Flex justify={'flex-end'}>
+          <Button
+            style={{ backgroundColor: '#428646', color: '#fff' }}
+            onClick={() => router.push(`/${router.query.org}/issue/new`)}
+          >
+            New Issue
+          </Button>
+        </Flex>
+
+        <Tabs defaultActiveKey='1' items={tab_items} onChange={tabsChange} />
+
+        <List
+          style={{ width: '80%', marginLeft: '10%', marginTop: '10px' }}
+          pagination={{ align: 'center', pageSize: pageSize, total: numTotal, onChange: onChange }}
+          dataSource={itemList}
+          renderItem={(item, index) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={
+                  // <ExclamationCircleOutlined />
+                  getStatusIcon(item.status)
+                }
+                title={
+                  <Link href={`/issue/${item.link}`}>
+                    {item.title} {getStatusTag(item.status)}
+                  </Link>
+                }
+                description={getDescription(item)}
+              />
+            </List.Item>
+          )}
+        />
+      </div>
+    </>
+  )
 }
