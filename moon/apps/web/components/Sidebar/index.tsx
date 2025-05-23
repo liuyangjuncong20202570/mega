@@ -39,6 +39,7 @@ import { RecentlyViewedPopover } from './RecentlyViewed/RecentlyViewedPopover'
 import { SidebarGroup } from './SidebarGroup'
 import { SidebarInbox } from './SidebarInbox'
 import { SidebarTest } from './SidebarTest'
+import {SidebarIssue} from './SidebarIssue'
 
 export function SidebarContainer() {
   const { scope } = useScope()
@@ -165,6 +166,7 @@ function SidebarContent() {
           <SidebarMyWorkItems />
           <SidebarDrafts />
           <SidebarTest />
+          <SidebarIssue />
         </SidebarGroup>
 
         <SidebarFavoritesGroup />
