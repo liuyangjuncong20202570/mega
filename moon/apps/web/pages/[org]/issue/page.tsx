@@ -1,11 +1,12 @@
 'use client'
 
 import { Heading } from '@/components/Catalyst/Heading'
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState,useCallback } from 'react';
 import { Flex, List, PaginationProps, Tag, Button, Tabs, TabsProps } from 'antd';
 import { formatDistance, fromUnixTime } from 'date-fns';
 import { CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import Link from 'next/link';
+import { useGetIssueLists } from '@/hooks/issues/useGetIssueLists';
 
 interface Item {
     link: string,
@@ -21,33 +22,38 @@ export default function IssuePage() {
     const [numTotal, setNumTotal] = useState(0);
     const [pageSize, setPageSize] = useState(10);
     const [status, setStatus] = useState("open")
+    const {mutateAsync:getIssueLists} = useGetIssueLists()
 
-    const fetchData = useCallback(async (page: number, per_page: number) => {
-        try {
-            const res = await fetch(`/api/issue/list`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    pagination: {
-                        page: page,
-                        per_page: per_page
-                    },
-                    additional: {
-                        status: status
-                    }
-                }),
-            });
-            const response = await res.json();
-            const data = response.data.data;
+    const fetchData = useCallback((page:number,per_page:number)=>{
+        getIssueLists({ pagination: { page, per_page }, additional: { status } })
+    },[status,getIssueLists])
 
-            setItemList(data.items);
-            setNumTotal(data.total)
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-    }, [status]);
+    // const fetchData = useCallback(async (page: number, per_page: number) => {
+    //     try {
+    //         const res = await fetch(`/api/issue/list`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify({
+    //                 pagination: {
+    //                     page: page,
+    //                     per_page: per_page
+    //                 },
+    //                 additional: {
+    //                     status: status
+    //                 }
+    //             }),
+    //         });
+    //         const response = await res.json();
+    //         const data = response.data.data;
+
+    //         setItemList(data.items);
+    //         setNumTotal(data.total)
+    //     } catch (error) {
+    //         console.error('Error fetching data:', error);
+    //     }
+    // }, [status]);
 
     useEffect(() => {
         fetchData(1, pageSize);
