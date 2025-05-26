@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { message } from 'antd'
 import { Button, Flex, Input, Space } from 'antd/lib'
 import { useRouter } from 'next/router'
 
@@ -13,6 +14,7 @@ export default function MRDetailPage() {
   const [loadings, setLoadings] = useState<boolean[]>([])
   const router = useRouter()
   const { mutateAsync: submitNewIssueAsync } = useSubmitNewIssue()
+  const [messageApi] = message.useMessage()
 
   const set_to_loading = (index: number) => {
     setLoadings((prevLoadings) => {
@@ -37,6 +39,8 @@ export default function MRDetailPage() {
       setEditorState('')
       cancel_loading(3)
       router.push(`/${router.query.org}/issue`)
+    } else {
+      messageApi.error(err_message)
     }
   }
 
