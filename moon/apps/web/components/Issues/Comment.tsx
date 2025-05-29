@@ -4,32 +4,19 @@ import type { MenuProps } from 'antd'
 import { Card, Dropdown } from 'antd/lib'
 import { formatDistance, fromUnixTime } from 'date-fns'
 
+import LexicalContent from '@/components/MrView/rich-editor/LexicalContent'
 import { useDeleteIssueComment } from '@/hooks/issues/useDeleteIssueComment'
-import { useDeleteMrCommentDelete } from '@/hooks/useDeleteMrCommentDelete'
 import { Conversation } from '@/pages/[org]/mr/[id]'
-
-import LexicalContent from './rich-editor/LexicalContent'
 
 interface CommentProps {
   conv: Conversation
   id: string
-  whoamI: string
 }
 
-const Comment = ({ conv, id, whoamI }: CommentProps) => {
-  const { mutate: deleteComment } = useDeleteMrCommentDelete(id)
-  const { mutate: deleteIssueComment } = useDeleteIssueComment(id)
+const Comment = ({ conv, id }: CommentProps) => {
+  const { mutate: deleteComment } = useDeleteIssueComment(id)
   const handleDelete = () => {
-    switch (whoamI) {
-      case 'issue':
-        deleteIssueComment(conv.id)
-        break
-      case 'mr':
-        deleteComment(conv.id)
-        break
-      default:
-        return
-    }
+    deleteComment(conv.id)
   }
 
   const handleMenuClick: MenuProps['onClick'] = ({ key }) => {

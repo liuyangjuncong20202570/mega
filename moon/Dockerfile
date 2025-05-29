@@ -11,7 +11,7 @@
   RUN pnpm install --frozen-lockfile
 
   # 构建：递归构建nextjs中的所有依赖
-  RUN pnpm --filter ./apps/web... build
+  RUN pnpm run build
 
   # 运行阶段
   FROM node:20-alpine AS runner

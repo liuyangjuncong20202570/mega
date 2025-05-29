@@ -25,15 +25,21 @@ interface issueDetail {
   conversations: { id: number; user_id: number; conv_type: string; comment: string; created_at: number }[]
   title: string
 }
+
+interface detailRes {
+  err_message: string
+  data: issueDetail
+  req_result: boolean
+}
 const getApiIssueDetail = legacyApiClient.v1.getApiIssueDetail()
 
 export function useGetIssueDetail(id: string) {
-  return useQuery({
+  return useQuery<detailRes, Error>({
     queryKey: ['issueDetail', id],
     queryFn: async () => {
       const { err_message, data, req_result } = await getApiIssueDetail.request(id)
 
-      if (!req_result) return
+      if (!req_result) throw new Error(err_message || 'fetching failed')
       const rawData = data as unknown as raw
       const converted: issueDetail = {
         title: rawData.title,

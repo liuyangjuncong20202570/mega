@@ -1,19 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Button, Flex, Input, Space } from 'antd/lib'
 import { useRouter } from 'next/router'
 import toast from 'react-hot-toast'
 
 import RichEditor from '@/components/MrView/rich-editor/RichEditor'
-import { useSubmitNewIssue } from '@/hooks/issues/useSubmitNewIssue'
+import { usePostIssueSubmit } from '@/hooks/issues/usePostIssueSubmit'
+import { apiErrorToast } from '@/utils/apiErrorToast'
 
 export default function MRDetailPage() {
   const [editorState, setEditorState] = useState('')
   const [title, setTitle] = useState('')
   const [loadings, setLoadings] = useState<boolean[]>([])
   const router = useRouter()
-  const { mutateAsync: submitNewIssueAsync } = useSubmitNewIssue()
+  const { mutate: submitNewIssue } = usePostIssueSubmit()
 
   const set_to_loading = (index: number) => {
     setLoadings((prevLoadings) => {
@@ -33,23 +34,29 @@ export default function MRDetailPage() {
     })
   }
 
-  async function submit(description: string) {
-    if (!(description && title)) {
-      toast.error('please fill the issue list first!')
-      return
-    }
-    set_to_loading(3)
-    const { data, err_message, req_result } = await submitNewIssueAsync({ title, description })
-
-    if (req_result && data) {
-      setEditorState('')
-      cancel_loading(3)
-      toast.success('success')
-      router.push(`/${router.query.org}/issue`)
-    } else {
-      toast.error(err_message)
-    }
-  }
+  const submit = useCallback(
+    (description: string) => {
+      console.log(title)
+      if (JSON.parse(description).root.children[0].children.length === 0 || !title) {
+        toast.error('please fill the issue list first!')
+        return
+      }
+      set_to_loading(3)
+      submitNewIssue(
+        { data: { title, description } },
+        {
+          onSuccess: (_response) => {
+            setEditorState('')
+            cancel_loading(3)
+            toast.success('success')
+            router.push(`/${router.query.org}/issue`)
+          },
+          onError: () => apiErrorToast
+        }
+      )
+    },
+    [title]
+  )
 
   return (
     <>

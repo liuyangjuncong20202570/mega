@@ -106,8 +106,7 @@ const moduleExports = {
     // https://nextjs.org/docs/messages/import-esm-externals
     esmExternals: 'loose',
     externalDir: true,
-    clientRouterFilter: false,
-    turbo: false
+    clientRouterFilter: false
   },
   transpilePackages: [
     '@gitmono/ui',

@@ -1,12 +1,18 @@
-// 'use client'
+'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { CloseCircleOutlined, CommentOutlined } from '@ant-design/icons'
 import { Button, Card, Flex, Space, Tabs, TabsProps, Timeline } from 'antd'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/router'
+import toast from 'react-hot-toast'
 
+import Comment from '@/components/MrView/MRComment'
 import RichEditor from '@/components/MrView/rich-editor/RichEditor'
 import { useGetIssueDetail } from '@/hooks/issues/useGetIssueDetail'
+import { usePostIssueClose } from '@/hooks/issues/usePostIssueClose'
+import { usePostIssueComment } from '@/hooks/issues/usePostIssueComment'
+import { usePostIssueReopen } from '@/hooks/issues/usePostIssueReopen'
+import { apiErrorToast } from '@/utils/apiErrorToast'
 
 interface IssueDetail {
   status: string
@@ -21,11 +27,13 @@ interface Conversation {
   created_at: number
 }
 
-// type Params = Promise<{ id: string }>
+interface detailRes {
+  err_message: string
+  data: IssueDetail
+  req_result: boolean
+}
 
 export default function IssueDetailPage({ id }: { id: string }) {
-  //   const { id } = React.use(params)
-
   const [editorState, setEditorState] = useState('')
   const [login, setLogin] = useState(false)
   const [info, setInfo] = useState<IssueDetail>({
@@ -33,39 +41,45 @@ export default function IssueDetailPage({ id }: { id: string }) {
     conversations: [],
     title: ''
   })
-  const { data: issueDetailObj } = useGetIssueDetail(id)
 
-  useEffect(() => {
-    if (!(issueDetailObj?.req_result && issueDetailObj.data)) {
-      return
-    }
+  const [buttonLoading, setButtonLoading] = useState<{ [key: string]: boolean }>({
+    comment: false,
+    close: false,
+    reopen: false
+  })
+
+  const setLoading = (key: string, value: boolean) => {
+    setButtonLoading((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const { mutate: closeIssue } = usePostIssueClose()
+
+  const { mutate: reopenIssue } = usePostIssueReopen()
+
+  const { mutate: saveComment } = usePostIssueComment()
+
+  const { data: issueDetailObj, error, isError, refetch } = useGetIssueDetail(id)
+
+  const applyDetailData = (detail: detailRes | undefined) => {
+    if (!detail || !detail.req_result) return
     setInfo({
-      title: issueDetailObj.data.title,
-      status: issueDetailObj.data.status,
-      conversations: issueDetailObj.data.conversations
+      title: detail.data.title,
+      status: detail.data.status,
+      conversations: detail.data.conversations
     })
-  }, [issueDetailObj])
+  }
+
+  const fetchDetail = useCallback(() => {
+    if (error || isError) return
+    applyDetailData(issueDetailObj)
+    setLogin(true)
+  }, [issueDetailObj, error, isError])
+  useEffect(() => {
+    fetchDetail()
+  }, [fetchDetail])
 
   const [loadings, setLoadings] = useState<boolean[]>([])
   const router = useRouter()
-
-  // const fetchDetail = useCallback(async () => {
-  //   const detail = await fetch(`/api/issue/${id}/detail`)
-  //   const detail_json = await detail.json()
-
-  //   setInfo(detail_json.data.data)
-  // }, [id])
-
-  // const checkLogin = async () => {
-  //   const res = await fetch(`/api/auth`)
-
-  //   setLogin(res.ok)
-  // }
-
-  // useEffect(() => {
-  //   checkLogin()
-  //   fetchDetail()
-  // }, [id, fetchDetail])
 
   const set_to_loading = (index: number) => {
     setLoadings((prevLoadings) => {
@@ -85,41 +99,59 @@ export default function IssueDetailPage({ id }: { id: string }) {
     })
   }
 
-  async function close_issue() {
+  const close_issue = useCallback(() => {
+    setLoading('close', true)
     set_to_loading(3)
-    const res = await fetch(`/api/issue/${id}/close`, {
-      method: 'POST'
-    })
+    closeIssue(
+      { link: id },
+      {
+        onSuccess: () => {
+          router.push(`/${router.query.org}/issue`)
+          cancel_loading(3)
+        },
+        onError: apiErrorToast,
+        onSettled: () => setLoading('close', false)
+      }
+    )
+  }, [])
 
-    if (res) {
-      router.push('/issue')
-    }
-  }
-
-  async function reopen_issue() {
+  const reopen_issue = useCallback(() => {
+    setLoading('reopen', true)
     set_to_loading(3)
-    const res = await fetch(`/api/issue/${id}/reopen`, {
-      method: 'POST'
-    })
+    reopenIssue(
+      { link: id },
+      {
+        onSuccess: () => {
+          router.push(`/${router.query.org}/issue`)
+        },
+        onError: apiErrorToast,
+        onSettled: () => setLoading('reopen', false)
+      }
+    )
+  }, [])
 
-    if (res) {
-      router.push('/issue')
+  const save_comment = useCallback((comment: string) => {
+    if (JSON.parse(comment).root.children[0].children.length === 0) {
+      toast.error('comment can not be empty!')
+      return
     }
-  }
-
-  async function save_comment(comment) {
+    setLoading('comment', true)
     set_to_loading(3)
-    const res = await fetch(`/api/issue/${id}/comment`, {
-      method: 'POST',
-      body: comment
-    })
-
-    if (res) {
-      setEditorState('')
-      // fetchDetail()
-      cancel_loading(3)
-    }
-  }
+    saveComment(
+      { link: id, data: { content: comment } },
+      {
+        onSuccess: async () => {
+          setEditorState('')
+          const { data: issueDetailObj } = await refetch({ throwOnError: true })
+          applyDetailData(issueDetailObj)
+          cancel_loading(3)
+          toast.success('comment successfully!')
+        },
+        onError: apiErrorToast,
+        onSettled: () => setLoading('comment', false)
+      }
+    )
+  }, [])
 
   const conv_items = info?.conversations.map((conv) => {
     let icon
@@ -128,7 +160,7 @@ export default function IssueDetailPage({ id }: { id: string }) {
     switch (conv.conv_type) {
       case 'Comment':
         icon = <CommentOutlined />
-        children = <MRComment conv={conv} fetchDetail={() => console.log('fetch detail')} />
+        children = <Comment conv={conv} id={id} whoamI='issue' />
         break
       case 'Closed':
         icon = <CloseCircleOutlined />
@@ -155,11 +187,16 @@ export default function IssueDetailPage({ id }: { id: string }) {
               <h1>Add a comment</h1>
               <RichEditor setEditorState={setEditorState} />
               <Flex gap='small' justify={'flex-end'}>
-                <Button loading={loadings[3]} disabled={!login} onClick={() => close_issue()}>
+                <Button
+                  // loading={motivation === 'close' ? loadings[3] : undefined}
+                  loading={buttonLoading.close}
+                  disabled={!login}
+                  onClick={() => close_issue()}
+                >
                   Close issue
                 </Button>
                 <Button
-                  loading={loadings[3]}
+                  loading={buttonLoading.comment}
                   disabled={editorState === '' || !login}
                   onClick={() => save_comment(editorState)}
                 >
@@ -170,7 +207,7 @@ export default function IssueDetailPage({ id }: { id: string }) {
           )}
           {info && info.status === 'closed' && (
             <Flex gap='small' justify={'flex-end'}>
-              <Button loading={loadings[3]} disabled={!login} onClick={() => reopen_issue()}>
+              <Button loading={buttonLoading.reopen} disabled={!login} onClick={() => reopen_issue()}>
                 Reopen issue
               </Button>
             </Flex>
@@ -181,7 +218,7 @@ export default function IssueDetailPage({ id }: { id: string }) {
   ]
 
   return (
-    <Card title={info.title + ' #' + id}>
+    <Card className='max-h-64 overflow-y-auto' title={info.title + ' #' + id}>
       <Tabs defaultActiveKey='1' items={tab_items} />
     </Card>
   )

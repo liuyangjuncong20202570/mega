@@ -1,4 +1,4 @@
-// 'use client'
+'use client'
 
 import React, { useCallback, useEffect, useState } from 'react'
 import { CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
@@ -6,10 +6,10 @@ import { Link } from '@gitmono/ui'
 import { Button, Flex, List, PaginationProps, Tabs, TabsProps, Tag } from 'antd'
 import { formatDistance, fromUnixTime } from 'date-fns'
 import { useRouter } from 'next/router'
-import toast from 'react-hot-toast'
 
 import { Heading } from '@/components/Catalyst/Heading'
 import { useGetIssueLists } from '@/hooks/issues/useGetIssueLists'
+import { apiErrorToast } from '@/utils/apiErrorToast'
 
 interface Item {
   closed_at?: number | null
@@ -20,43 +20,43 @@ interface Item {
   open_timestamp: number
   updated_at: number
 }
-// interface Item {
-//     link: string,
-//     title: string,
-//     status: string,
-//     open_timestamp: number,
-//     merge_timestamp: number | null,
-//     updated_at: number,
-// }
 
 export default function IssuePage() {
   const router = useRouter()
   const [itemList, setItemList] = useState<Item[]>([])
   const [numTotal, setNumTotal] = useState(0)
   const [pageSize, setPageSize] = useState(10)
+  const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState('open')
-  const { mutateAsync: issueListsAsync } = useGetIssueLists()
+  const { mutate: issueLists } = useGetIssueLists()
 
   const fetchData = useCallback(
-    async (page: number, per_page: number) => {
-      const { req_result, data, err_message } = await issueListsAsync({
-        pagination: { page, per_page },
-        additional: { status }
-      })
+    (page: number, per_page: number) => {
+      setLoading(true)
 
-      if (req_result && data) {
-        setItemList(data.items ?? [])
-        setNumTotal(data.total ?? 0)
-      } else {
-        toast.error(err_message)
-      }
+      issueLists(
+        {
+          data: { pagination: { page, per_page }, additional: { status } }
+        },
+        {
+          onSuccess: (response) => {
+            const data = response.data
+
+            setItemList(data?.items ?? [])
+            setNumTotal(data?.total ?? 0)
+          },
+          onError: apiErrorToast,
+          onSettled: () => setLoading(false)
+        }
+      )
     },
-    [status, issueListsAsync]
+
+    [status, issueLists]
   )
 
   useEffect(() => {
     fetchData(1, pageSize)
-  }, [pageSize, status, fetchData])
+  }, [pageSize, fetchData])
 
   const getStatusTag = (status: string) => {
     switch (status) {
@@ -127,6 +127,7 @@ export default function IssuePage() {
           style={{ width: '80%', marginLeft: '10%', marginTop: '10px' }}
           pagination={{ align: 'center', pageSize: pageSize, total: numTotal, onChange: onChange }}
           dataSource={itemList}
+          loading={loading}
           renderItem={(item, index) => (
             <List.Item>
               <List.Item.Meta
