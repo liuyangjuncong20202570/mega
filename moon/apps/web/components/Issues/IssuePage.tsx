@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useCallback, useEffect, useState } from 'react'
-import { CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
+// import { CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import { Link } from '@gitmono/ui'
 import { Button, Flex, List, PaginationProps, Tabs, TabsProps, Tag } from 'antd'
 import { formatDistance, fromUnixTime } from 'date-fns'
@@ -70,9 +70,9 @@ export default function IssuePage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'open':
-        return <ExclamationCircleOutlined />
+      // return <ExclamationCircleOutlined />
       case 'closed':
-        return <CheckCircleOutlined />
+      // return <CheckCircleOutlined />
     }
   }
 
@@ -131,10 +131,10 @@ export default function IssuePage() {
           renderItem={(item, index) => (
             <List.Item>
               <List.Item.Meta
-                avatar={
-                  // <ExclamationCircleOutlined />
-                  getStatusIcon(item.status)
-                }
+                // avatar={
+                //   // <ExclamationCircleOutlined />
+                //   getStatusIcon(item.status)
+                // }
                 title={
                   <Link href={`/${router.query.org}/issue/${item.link}`}>
                     {item.title} {getStatusTag(item.status)}

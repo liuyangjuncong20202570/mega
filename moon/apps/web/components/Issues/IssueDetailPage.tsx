@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useCallback, useEffect, useState } from 'react'
-import { CloseCircleOutlined, CommentOutlined } from '@ant-design/icons'
+// import { CloseCircleOutlined, CommentOutlined } from '@ant-design/icons'
 import { Button, Card, Flex, Space, Tabs, TabsProps, Timeline } from 'antd'
 import { useRouter } from 'next/router'
 import toast from 'react-hot-toast'
@@ -159,11 +159,11 @@ export default function IssueDetailPage({ id }: { id: string }) {
 
     switch (conv.conv_type) {
       case 'Comment':
-        icon = <CommentOutlined />
+        // icon = <CommentOutlined />
         children = <Comment conv={conv} id={id} whoamI='issue' />
         break
       case 'Closed':
-        icon = <CloseCircleOutlined />
+        // icon = <CloseCircleOutlined />
         children = conv.comment
     }
 

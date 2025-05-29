@@ -12,7 +12,6 @@
     "test": "turbo run test"
   },
   "devDependencies": {
-    "@ant-design/icons": "5.x",
     "@ianvs/prettier-plugin-sort-imports": "catalog:",
     "prettier": "catalog:",
     "prettier-plugin-packagejson": "catalog:",
