@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { message } from 'antd'
 import { Button, Flex, Input, Space } from 'antd/lib'
 import { useRouter } from 'next/router'
+import toast from 'react-hot-toast'
 
 import RichEditor from '@/components/MrView/rich-editor/RichEditor'
 import { useSubmitNewIssue } from '@/hooks/issues/useSubmitNewIssue'
@@ -14,11 +14,11 @@ export default function MRDetailPage() {
   const [loadings, setLoadings] = useState<boolean[]>([])
   const router = useRouter()
   const { mutateAsync: submitNewIssueAsync } = useSubmitNewIssue()
-  const [messageApi] = message.useMessage()
 
   const set_to_loading = (index: number) => {
     setLoadings((prevLoadings) => {
       const newLoadings = [...prevLoadings]
+
       newLoadings[index] = true
       return newLoadings
     })
@@ -27,20 +27,27 @@ export default function MRDetailPage() {
   const cancel_loading = (index: number) => {
     setLoadings((prevLoadings) => {
       const newLoadings = [...prevLoadings]
+
       newLoadings[index] = false
       return newLoadings
     })
   }
 
   async function submit(description: string) {
+    if (!(description && title)) {
+      toast.error('please fill the issue list first!')
+      return
+    }
     set_to_loading(3)
     const { data, err_message, req_result } = await submitNewIssueAsync({ title, description })
+
     if (req_result && data) {
       setEditorState('')
       cancel_loading(3)
+      toast.success('success')
       router.push(`/${router.query.org}/issue`)
     } else {
-      messageApi.error(err_message)
+      toast.error(err_message)
     }
   }
 

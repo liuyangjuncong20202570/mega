@@ -1,10 +1,7 @@
-import Head from 'next/head'
-
+import IssuePage from '@/components/Issues/IssuePage'
 import { AppLayout } from '@/components/Layout/AppLayout'
 import { AuthAppProviders } from '@/components/Providers/AuthAppProviders'
 import { PageWithLayout } from '@/utils/types'
-
-import IssuePage from './page.tsx'
 
 const OrganizationIssuePage: PageWithLayout<any> = () => {
   return (

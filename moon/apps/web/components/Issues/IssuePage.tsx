@@ -1,11 +1,12 @@
-'use client'
+// 'use client'
 
 import React, { useCallback, useEffect, useState } from 'react'
 import { CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
+import { Link } from '@gitmono/ui'
 import { Button, Flex, List, PaginationProps, Tabs, TabsProps, Tag } from 'antd'
 import { formatDistance, fromUnixTime } from 'date-fns'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
+import toast from 'react-hot-toast'
 
 import { Heading } from '@/components/Catalyst/Heading'
 import { useGetIssueLists } from '@/hooks/issues/useGetIssueLists'
@@ -42,9 +43,12 @@ export default function IssuePage() {
         pagination: { page, per_page },
         additional: { status }
       })
+
       if (req_result && data) {
         setItemList(data.items ?? [])
         setNumTotal(data.total ?? 0)
+      } else {
+        toast.error(err_message)
       }
     },
     [status, issueListsAsync]
@@ -131,7 +135,7 @@ export default function IssuePage() {
                   getStatusIcon(item.status)
                 }
                 title={
-                  <Link href={`/issue/${item.link}`}>
+                  <Link href={`/${router.query.org}/issue/${item.link}`}>
                     {item.title} {getStatusTag(item.status)}
                   </Link>
                 }

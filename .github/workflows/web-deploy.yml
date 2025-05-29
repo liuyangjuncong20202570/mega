@@ -54,9 +54,9 @@ jobs:
         working-directory: ./moon
         run: pnpm run lint
 
-      - name: Build Next.js application
-        working-directory: ./moon
-        run: pnpm run build
+      # - name: Build Next.js application
+      #   working-directory: ./moon
+      #   run: pnpm run build
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4

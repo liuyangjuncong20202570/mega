@@ -1,11 +1,9 @@
-
+import MRDetailPage from '@/components/Issues/MRDetailPage'
 import { AppLayout } from '@/components/Layout/AppLayout'
 import { AuthAppProviders } from '@/components/Providers/AuthAppProviders'
 import { PageWithLayout } from '@/utils/types'
-import MRDetailPage from './page.tsx'
 
 const OrganizationIssueNewPage: PageWithLayout<any> = () => {
-
   return (
     <>
       <MRDetailPage />
