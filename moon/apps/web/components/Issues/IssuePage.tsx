@@ -25,7 +25,7 @@ export default function IssuePage() {
   const router = useRouter()
   const [itemList, setItemList] = useState<Item[]>([])
   const [numTotal, setNumTotal] = useState(0)
-  const [pageSize, setPageSize] = useState(10)
+  const [pageSize, _setPageSize] = useState(10)
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState('open')
   const { mutate: issueLists } = useGetIssueLists()
@@ -67,14 +67,14 @@ export default function IssuePage() {
     }
   }
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'open':
-      // return <ExclamationCircleOutlined />
-      case 'closed':
-      // return <CheckCircleOutlined />
-    }
-  }
+  // const getStatusIcon = (status: string) => {
+  //   switch (status) {
+  //     case 'open':
+  //     // return <ExclamationCircleOutlined />
+  //     case 'closed':
+  //     // return <CheckCircleOutlined />
+  //   }
+  // }
 
   const getDescription = (item: Item) => {
     switch (item.status) {
@@ -128,7 +128,7 @@ export default function IssuePage() {
           pagination={{ align: 'center', pageSize: pageSize, total: numTotal, onChange: onChange }}
           dataSource={itemList}
           loading={loading}
-          renderItem={(item, index) => (
+          renderItem={(item, _index) => (
             <List.Item>
               <List.Item.Meta
                 // avatar={

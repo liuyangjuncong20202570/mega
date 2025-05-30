@@ -1,4 +1,4 @@
-import MRDetailPage from '@/components/Issues/MRDetailPage'
+import IssueNewPage from '@/components/Issues/IssueNewPage'
 import { AppLayout } from '@/components/Layout/AppLayout'
 import { AuthAppProviders } from '@/components/Providers/AuthAppProviders'
 import { PageWithLayout } from '@/utils/types'
@@ -6,7 +6,7 @@ import { PageWithLayout } from '@/utils/types'
 const OrganizationIssueNewPage: PageWithLayout<any> = () => {
   return (
     <>
-      <MRDetailPage />
+      <IssueNewPage />
     </>
   )
 }

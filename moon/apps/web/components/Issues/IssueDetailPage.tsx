@@ -74,11 +74,12 @@ export default function IssueDetailPage({ id }: { id: string }) {
     applyDetailData(issueDetailObj)
     setLogin(true)
   }, [issueDetailObj, error, isError])
+
   useEffect(() => {
     fetchDetail()
   }, [fetchDetail])
 
-  const [loadings, setLoadings] = useState<boolean[]>([])
+  const [_loadings, setLoadings] = useState<boolean[]>([])
   const router = useRouter()
 
   const set_to_loading = (index: number) => {
@@ -113,7 +114,7 @@ export default function IssueDetailPage({ id }: { id: string }) {
         onSettled: () => setLoading('close', false)
       }
     )
-  }, [])
+  }, [id, router, closeIssue])
 
   const reopen_issue = useCallback(() => {
     setLoading('reopen', true)
@@ -128,30 +129,34 @@ export default function IssueDetailPage({ id }: { id: string }) {
         onSettled: () => setLoading('reopen', false)
       }
     )
-  }, [])
+  }, [id, router, reopenIssue])
 
-  const save_comment = useCallback((comment: string) => {
-    if (JSON.parse(comment).root.children[0].children.length === 0) {
-      toast.error('comment can not be empty!')
-      return
-    }
-    setLoading('comment', true)
-    set_to_loading(3)
-    saveComment(
-      { link: id, data: { content: comment } },
-      {
-        onSuccess: async () => {
-          setEditorState('')
-          const { data: issueDetailObj } = await refetch({ throwOnError: true })
-          applyDetailData(issueDetailObj)
-          cancel_loading(3)
-          toast.success('comment successfully!')
-        },
-        onError: apiErrorToast,
-        onSettled: () => setLoading('comment', false)
+  const save_comment = useCallback(
+    (comment: string) => {
+      if (JSON.parse(comment).root.children[0].children.length === 0) {
+        toast.error('comment can not be empty!')
+        return
       }
-    )
-  }, [])
+      setLoading('comment', true)
+      set_to_loading(3)
+      saveComment(
+        { link: id, data: { content: comment } },
+        {
+          onSuccess: async () => {
+            setEditorState('')
+            const { data: issueDetailObj } = await refetch({ throwOnError: true })
+
+            applyDetailData(issueDetailObj)
+            cancel_loading(3)
+            toast.success('comment successfully!')
+          },
+          onError: apiErrorToast,
+          onSettled: () => setLoading('comment', false)
+        }
+      )
+    },
+    [id, refetch, saveComment]
+  )
 
   const conv_items = info?.conversations.map((conv) => {
     let icon
