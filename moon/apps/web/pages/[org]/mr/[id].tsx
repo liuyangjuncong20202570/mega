@@ -22,11 +22,10 @@ import FilesChanged from '@/components/MrView/files-changed'
 import AuthAppProviders from '@/components/Providers/AuthAppProviders'
 import { useGetMrDetail } from '@/hooks/useGetMrDetail'
 import { useGetMrFilesChanged } from '@/hooks/useGetMrFilesChanged'
-import { usePostMrClose } from '@/hooks/usePostMrClose'
 import { usePostMrComment } from '@/hooks/usePostMrComment'
 import { usePostMrMerge } from '@/hooks/usePostMrMerge'
-import { usePostMrReopen } from '@/hooks/usePostMrReopen'
-import { PageWithLayout } from '@/utils/types'
+import { usePostMrReopen } from '@/hooks/usePostMrReopen';
+import { usePostMrClose } from '@/hooks/usePostMrClose';
 import { useScope } from '@/contexts/scope'
 
 interface MRDetail {
