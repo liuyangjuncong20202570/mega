@@ -28,6 +28,7 @@ concurrency:
 
 jobs:
   deploy-mono:
+    if: false
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
